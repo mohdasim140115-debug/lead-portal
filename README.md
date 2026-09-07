@@ -17,6 +17,12 @@ npm run dev
 
 Open http://localhost:3000 and sign in with the seeded credentials.
 
+> **MongoDB Atlas + `querySrv ECONNREFUSED`?** Some ISP/local DNS resolvers refuse
+> the SRV/TXT lookups that `mongodb+srv://` needs. Set
+> `MONGODB_DNS_SERVERS=8.8.8.8,1.1.1.1` in `.env.local` — the app points its
+> resolver at those for the connection. Also add your IP (or `0.0.0.0/0` for dev)
+> to the Atlas **Network Access** list.
+
 ## Scripts
 
 | Script | Purpose |

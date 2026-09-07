@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { NAV_ICONS } from "@/components/nav/icons";
 
 export function Sidebar({ groups, brand = "Lead Portal" }) {
   const pathname = usePathname();
@@ -25,7 +26,7 @@ export function Sidebar({ groups, brand = "Lead Portal" }) {
                 const active =
                   base === pathname ||
                   (base !== "/admin" && base !== "/buyer" && pathname.startsWith(base));
-                const Icon = item.icon;
+                const Icon = NAV_ICONS[item.icon];
                 return (
                   <li key={item.href}>
                     <Link

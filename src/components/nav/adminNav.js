@@ -1,67 +1,60 @@
-import {
-  LayoutDashboard, Users, Radio, Wallet, Tags, BarChart3, Settings, ShieldCheck,
-} from "lucide-react";
 import { PERMISSIONS as P } from "@/lib/constants";
 
-// Each item declares the permission required to see it. Groups with no visible
-// child are hidden entirely.
+// `icon` is a string key into NAV_ICONS (see ./icons.js). Each item declares the
+// permission required to see it; groups with no visible child are hidden.
 export const ADMIN_NAV = [
   {
     label: "Overview",
-    items: [
-      { label: "Dashboard", href: "/admin", icon: LayoutDashboard, permission: null },
-    ],
+    items: [{ label: "Dashboard", href: "/admin", icon: "dashboard", permission: null }],
   },
   {
     label: "Leads",
     items: [
-      { label: "All Leads", href: "/admin/leads", icon: Users, permission: P.LEADS_VIEW },
-      { label: "Available", href: "/admin/leads?status=available", icon: Users, permission: P.LEADS_VIEW },
-      { label: "Sold", href: "/admin/leads?status=purchased", icon: Users, permission: P.LEADS_VIEW },
-      { label: "Duplicates", href: "/admin/leads?status=duplicate", icon: Users, permission: P.LEADS_VIEW },
+      { label: "All Leads", href: "/admin/leads", icon: "users", permission: P.LEADS_VIEW },
+      { label: "Available", href: "/admin/leads?status=available", icon: "users", permission: P.LEADS_VIEW },
+      { label: "Sold", href: "/admin/leads?status=purchased", icon: "users", permission: P.LEADS_VIEW },
+      { label: "Duplicates", href: "/admin/leads?status=duplicate", icon: "users", permission: P.LEADS_VIEW },
     ],
   },
   {
     label: "Sources",
     items: [
-      { label: "Integrations", href: "/admin/sources", icon: Radio, permission: P.SETTINGS_MANAGE },
-      { label: "Imports", href: "/admin/sources/imports", icon: Radio, permission: P.LEADS_MANAGE },
+      { label: "Integrations", href: "/admin/sources", icon: "radio", permission: P.SETTINGS_MANAGE },
+      { label: "Imports", href: "/admin/sources/imports", icon: "radio", permission: P.LEADS_MANAGE },
     ],
   },
   {
     label: "Buyers",
-    items: [
-      { label: "All Buyers", href: "/admin/buyers", icon: Users, permission: P.BUYERS_VIEW },
-    ],
+    items: [{ label: "All Buyers", href: "/admin/buyers", icon: "users", permission: P.BUYERS_VIEW }],
   },
   {
     label: "Sales",
     items: [
-      { label: "Purchases", href: "/admin/sales/purchases", icon: Wallet, permission: P.SALES_VIEW },
-      { label: "Transactions", href: "/admin/sales/transactions", icon: Wallet, permission: P.FINANCE_MANAGE },
-      { label: "Refunds", href: "/admin/sales/refunds", icon: Wallet, permission: P.FINANCE_MANAGE },
-      { label: "Invoices", href: "/admin/sales/invoices", icon: Wallet, permission: P.FINANCE_MANAGE },
+      { label: "Purchases", href: "/admin/sales/purchases", icon: "wallet", permission: P.SALES_VIEW },
+      { label: "Transactions", href: "/admin/sales/transactions", icon: "wallet", permission: P.FINANCE_MANAGE },
+      { label: "Refunds", href: "/admin/sales/refunds", icon: "wallet", permission: P.FINANCE_MANAGE },
+      { label: "Invoices", href: "/admin/sales/invoices", icon: "wallet", permission: P.FINANCE_MANAGE },
     ],
   },
   {
     label: "Pricing",
     items: [
-      { label: "Pricing Rules", href: "/admin/pricing", icon: Tags, permission: P.PRICING_MANAGE },
-      { label: "Categories", href: "/admin/pricing/categories", icon: Tags, permission: P.PRICING_MANAGE },
+      { label: "Pricing Rules", href: "/admin/pricing", icon: "tags", permission: P.PRICING_MANAGE },
+      { label: "Categories", href: "/admin/pricing/categories", icon: "tags", permission: P.PRICING_MANAGE },
     ],
   },
   {
     label: "Insights",
     items: [
-      { label: "Analytics", href: "/admin/analytics", icon: BarChart3, permission: P.ANALYTICS_VIEW },
-      { label: "Audit Log", href: "/admin/audit", icon: ShieldCheck, permission: P.AUDIT_VIEW },
+      { label: "Analytics", href: "/admin/analytics", icon: "chart", permission: P.ANALYTICS_VIEW },
+      { label: "Audit Log", href: "/admin/audit", icon: "shield", permission: P.AUDIT_VIEW },
     ],
   },
   {
     label: "Settings",
     items: [
-      { label: "Users", href: "/admin/settings/users", icon: Settings, permission: P.USERS_MANAGE },
-      { label: "System", href: "/admin/settings", icon: Settings, permission: P.SETTINGS_MANAGE },
+      { label: "Users", href: "/admin/settings/users", icon: "settings", permission: P.USERS_MANAGE },
+      { label: "System", href: "/admin/settings", icon: "settings", permission: P.SETTINGS_MANAGE },
     ],
   },
 ];

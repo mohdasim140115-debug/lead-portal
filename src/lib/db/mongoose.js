@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { env } from "@/lib/env";
+import { applyDnsOverride } from "@/lib/db/dnsBootstrap";
 
 // Cache the connection across hot reloads / serverless invocations.
 let cached = global.__mongoose;
@@ -11,6 +12,7 @@ export async function connectDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
+    applyDnsOverride();
     mongoose.set("strictQuery", true);
     cached.promise = mongoose
       .connect(env.mongodbUri, {
