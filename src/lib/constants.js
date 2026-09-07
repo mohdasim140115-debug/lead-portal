@@ -80,6 +80,16 @@ export const LEAD_SOURCES = {
   API: "api",
 };
 
+export const LEAD_SOURCE_LABELS = {
+  meta: "Meta Ads",
+  google: "Google Ads",
+  landing_page: "Landing Page",
+  website: "Website",
+  manual: "Manual",
+  csv: "CSV Import",
+  api: "API",
+};
+
 export const LEAD_STATUS = {
   NEW: "new",
   VERIFIED: "verified",
@@ -97,6 +107,24 @@ export const LEAD_STATUS = {
   REFUNDED: "refunded",
   CLOSED: "closed",
 };
+
+export const LEAD_STATUS_LABELS = {
+  new: "New", verified: "Verified", available: "Available", assigned: "Assigned",
+  purchased: "Purchased", contacted: "Contacted", follow_up: "Follow Up",
+  interested: "Interested", converted: "Converted", not_interested: "Not Interested",
+  wrong_number: "Wrong Number", duplicate: "Duplicate", rejected: "Rejected",
+  refunded: "Refunded", closed: "Closed",
+};
+
+// Statuses admin/staff can move a lead to manually (pre-sale lifecycle).
+export const ADMIN_SETTABLE_STATUS = [
+  LEAD_STATUS.NEW,
+  LEAD_STATUS.VERIFIED,
+  LEAD_STATUS.AVAILABLE,
+  LEAD_STATUS.REJECTED,
+  LEAD_STATUS.DUPLICATE,
+  LEAD_STATUS.CLOSED,
+];
 
 // Statuses a buyer is allowed to set on a lead they own.
 export const BUYER_SETTABLE_STATUS = [

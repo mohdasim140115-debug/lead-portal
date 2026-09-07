@@ -28,19 +28,31 @@ React 19 · MongoDB/Mongoose · Tailwind · custom JWT auth.
 - SEO baseline (robots, sitemap, noindex on private surfaces), 404 / error UI.
 - Unit tests: JWT, password, rate limit, RBAC.
 
-## Phase 2 — Lead management
+## Phase 2 — Lead management ✅ (complete)
 
-- Models: `Category` (tree), `Location`, `Lead` (+ `statusHistory`), `LeadEvent`.
-- Lead schema: contact, attribution (UTM/campaign/ad/form), quality, score,
-  pricing, selling model, buyer slots. Indexes: `phone`, `email`, `source`,
-  `status`, `category`, `city`, `createdAt`, compound `{status, category, city}`.
-- `leadService`: create / normalise / list (filter + search + paginate) / update
-  status with history / soft delete.
-- Normalisation: phone (E.164), email lowercase/trim.
-- Admin: lead table (sticky header, filters, saved views), lead detail page
-  (overview / contact / requirement / attribution / quality / pricing / purchase
-  / status history / audit), manual add, CSV import with column mapping + dry run.
-- `/api/leads` (GET list, POST manual), `/api/leads/[id]` (GET, PATCH).
+- Models: `Lead` (contact, embedded `attribution` sub-doc + `externalIds` map,
+  embedded `statusHistory`, quality/score, pricing + selling model + buyer slots,
+  duplicate linkage, unique-partial `dedupeKey` for idempotent ingestion),
+  `Category` (auto-populated name registry).
+- Indexes: `createdAt`, `{status,category,city,createdAt}`, `{source,createdAt}`,
+  `{phone,createdAt}`, `{email,createdAt}`, unique-partial `dedupeKey`.
+- `leadService`: `createLead` (normalise → score → duplicate-check → persist +
+  audit + idempotency), `listLeads` (filters + whitelisted sort + projection +
+  pagination + phone masking), `getLead`, `updateLeadStatus` (admin-settable set +
+  history + sold-lock), `updateLeadFields` (re-scores), `archiveLead`.
+- `duplicate.js` — configurable window/match (v1: 30d, phone OR email).
+- `score.js` — weighted completeness + contactability → 0–100 + quality band.
+- CSV: dependency-free RFC-4180 parser, header auto-map, `importService` dry-run
+  preview + commit (duplicates flagged, not dropped).
+- API: `/api/leads` GET+POST, `/api/leads/[id]` GET/PATCH/DELETE,
+  `/api/leads/[id]/status` POST, `/api/leads/import` POST, `/api/categories` GET.
+- Admin UI: `/admin/leads` (URL-synced filter bar + debounced search, server
+  table, pagination, Add-lead modal); `/admin/leads/[id]` (full detail, PII
+  masking by permission, status/edit/archive); `/admin/sources/imports` CSV
+  wizard. Dashboard wired to real aggregation.
+- RBAC: middleware route→permission gate (`lib/auth/routeAccess.js`); page/API
+  guards remain source of truth; `error.js` re-throws `NEXT_*` errors.
+- Tests: normalisation, scoring, CSV parse + auto-map.
 
 ## Phase 3 — Lead sources & ingestion
 

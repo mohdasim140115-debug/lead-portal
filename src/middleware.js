@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifySession } from "@/lib/auth/jwt";
 import { env } from "@/lib/env";
 import { STAFF_ROLES, ROLES } from "@/lib/constants";
+import { requiredPermissionForPath, roleHasPermission } from "@/lib/auth/routeAccess";
 
 // Coarse gate only. Authoritative auth + permission checks run server-side in
 // pages and route handlers (they also verify DB state / tokenVersion).
@@ -26,6 +27,12 @@ export async function middleware(req) {
     const isStaff = STAFF_ROLES.includes(role);
     if (isAdmin && !isStaff) {
       return NextResponse.redirect(new URL("/buyer", req.url));
+    }
+    if (isAdmin && isStaff) {
+      const perm = requiredPermissionForPath(pathname);
+      if (perm && !roleHasPermission(role, perm)) {
+        return NextResponse.redirect(new URL("/admin?denied=1", req.url));
+      }
     }
     if (isBuyer && role !== ROLES.BUYER) {
       return NextResponse.redirect(new URL("/admin", req.url));

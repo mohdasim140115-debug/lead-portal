@@ -1,63 +1,96 @@
-import { Users, UserCheck, Wallet, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import { Users, UserCheck, CopyX, TrendingUp } from "lucide-react";
 import { requireStaff } from "@/lib/auth/guards";
-import { connectDB } from "@/lib/db/mongoose";
-import User from "@/lib/db/models/User";
+import { getLeadStats, getRecentLeads } from "@/lib/services/dashboardService";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/ui/StatCard";
-import { Card, CardBody } from "@/components/ui/Card";
-import { ROLES } from "@/lib/constants";
-import { formatNumber } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardBody } from "@/components/ui/Card";
+import { StatusBadge } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/States";
+import { LEAD_SOURCE_LABELS } from "@/lib/constants";
+import { formatNumber, formatDate } from "@/lib/utils";
 
 export const metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }) {
   const user = await requireStaff();
-  await connectDB();
-
-  const [staffCount, buyerCount] = await Promise.all([
-    User.countDocuments({ role: { $ne: ROLES.BUYER } }),
-    User.countDocuments({ role: ROLES.BUYER }),
-  ]);
+  const sp = await searchParams;
+  const [stats, recent] = await Promise.all([getLeadStats(), getRecentLeads()]);
 
   return (
     <>
-      <PageHeader
-        title={`Welcome back, ${user.name.split(" ")[0]}`}
-        description="Lead and revenue metrics populate here as sources are connected and leads flow in."
-      />
+      <PageHeader title={`Welcome back, ${user.name.split(" ")[0]}`} />
+      {sp?.denied ? (
+        <div className="mb-4 rounded-md border border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-warning">
+          You don&apos;t have access to that section.
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total leads" value={formatNumber(0)} icon={Users} tone="info" />
-        <StatCard label="Available leads" value={formatNumber(0)} icon={UserCheck} tone="success" />
-        <StatCard label="Revenue (30d)" value="₹0" icon={Wallet} tone="warning" />
-        <StatCard label="Conversion rate" value="0%" icon={TrendingUp} tone="neutral" />
+        <StatCard label="Total leads" value={formatNumber(stats.total)} sublabel={`${formatNumber(stats.today)} today`} icon={Users} tone="info" />
+        <StatCard label="Available" value={formatNumber(stats.available)} sublabel={`${formatNumber(stats.new)} new · ${formatNumber(stats.verified)} verified`} icon={UserCheck} tone="success" />
+        <StatCard label="Sold" value={formatNumber(stats.sold)} icon={TrendingUp} tone="warning" />
+        <StatCard label="Duplicates" value={formatNumber(stats.duplicate)} icon={CopyX} tone="neutral" />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardBody>
-            <p className="text-sm font-semibold">Team</p>
-            <div className="mt-3 flex gap-8">
-              <div>
-                <p className="text-2xl font-semibold">{formatNumber(staffCount)}</p>
-                <p className="text-xs text-muted-foreground">Staff users</p>
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Recent leads</CardTitle>
+            <Link href="/admin/leads" className="text-sm text-primary hover:underline">View all</Link>
+          </CardHeader>
+          <CardBody className="p-0">
+            {recent.length === 0 ? (
+              <div className="p-5">
+                <EmptyState title="No leads yet" description="Add a lead or import a CSV to get started." />
               </div>
-              <div>
-                <p className="text-2xl font-semibold">{formatNumber(buyerCount)}</p>
-                <p className="text-xs text-muted-foreground">Buyer accounts</p>
-              </div>
-            </div>
+            ) : (
+              <ul className="divide-y divide-border">
+                {recent.map((l) => (
+                  <li key={l.id}>
+                    <Link href={`/admin/leads/${l.id}`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-muted/40">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{l.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {[l.category, l.city].filter(Boolean).join(" · ") || "—"} · {LEAD_SOURCE_LABELS[l.source] || l.source}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-3">
+                        <StatusBadge status={l.status} />
+                        <span className="text-xs text-muted-foreground">{formatDate(l.createdAt, true)}</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
+
         <Card>
+          <CardHeader><CardTitle>Leads by source</CardTitle></CardHeader>
           <CardBody>
-            <p className="text-sm font-semibold">Next steps</p>
-            <ul className="mt-3 space-y-1.5 text-sm text-muted-foreground">
-              <li>• Connect a lead source (Meta, Google, landing page or CSV)</li>
-              <li>• Add buyers and configure their categories &amp; locations</li>
-              <li>• Define pricing rules</li>
-            </ul>
+            {stats.bySource.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No data yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {stats.bySource.map((s) => {
+                  const pct = stats.total ? Math.round((s.count / stats.total) * 100) : 0;
+                  return (
+                    <li key={s.source}>
+                      <div className="mb-1 flex justify-between text-sm">
+                        <span>{LEAD_SOURCE_LABELS[s.source] || s.source}</span>
+                        <span className="text-muted-foreground">{formatNumber(s.count)} · {pct}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted">
+                        <div className="h-1.5 rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </CardBody>
         </Card>
       </div>

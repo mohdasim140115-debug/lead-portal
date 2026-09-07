@@ -66,5 +66,9 @@ src/
 
 ## Build phases
 
-See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md). Phase 1 (foundation:
-DB, auth, RBAC, design system, user management, app shells) is complete.
+See [docs/IMPLEMENTATION_PLAN.md](docs/IMPLEMENTATION_PLAN.md).
+
+- **Phase 1** ✅ — DB, auth, RBAC, design system, user management, app shells
+- **Phase 2** ✅ — leads: model + scoring + duplicate detection, list/filter/detail,
+  manual add, CSV import, dashboard metrics
+- **Phase 3** next — Meta / Google / landing-page ingestion
